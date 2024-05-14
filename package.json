@@ -2,10 +2,10 @@
   "name": "nutrien",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.ts",
+  "main": "server.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "node ./out/server.js",
+    "dev": "node server.js",
     "start": "tsc && npm run dev",
     "test": "jest"
   },
