@@ -11,13 +11,13 @@ export function createTable(db:sql.Database, name:string):Promise<void> {
     db,
     `CREATE TABLE IF NOT EXISTS ${name}
     (
-      attribute VARCHAR(64),
-      commodity VARCHAR(64),
-      commodity_type VARCHAR(64),
-      units VARCHAR(64),
-      year_type VARCHAR(64),
-      year VARCHAR(64),
-      value NUMERICAL
+      Attribute VARCHAR(64),
+      Commodity VARCHAR(64),
+      CommodityType VARCHAR(64),
+      Units VARCHAR(64),
+      YearType VARCHAR(64),
+      Year VARCHAR(64),
+      Value NUMERICAL
     )`
   );
 }
@@ -28,28 +28,43 @@ export function createTable(db:sql.Database, name:string):Promise<void> {
  * @param {Array<any>} data - the data to load
  * @returns {Promise<Number>} the number of rows inserted
  */
-export function insertRow(db:sql.Database, table:string, data:Array<any>):Promise<void> {
+export function insertRow(db:sql.Database, table:string, data:any):Promise<void> {
   // TODO: add column count validation
-  
-  if (!(data[6] instanceof Number)) {
-    data[6] = Number(data[6]);
+
+  const value = data['Value'];
+
+  if (!(value instanceof Number)) {
+    data['Value'] =  Number(value);
   }
 
-  return runQuery(
-    db,
-    `INSERT INTO ${table}
-    (
-      attribute,
-      commodity,
-      commodity_type,
-      units,
-      year_type,
-      year,
-      value
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    ...data
-  )
+  // console.log(data);
+
+  // return runQuery(
+  //   db,
+  //   `INSERT INTO ${table}
+  //   (
+  //     attribute,
+  //     commodity,
+  //     commodity_type,
+  //     units,
+  //     year_type,
+  //     year,
+  //     value
+  //   )
+  //   VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  //   ...data
+  // )
+  
+  const columns = Object.keys(data).join(', ');
+  const values = Object.values(data)
+    .map((value) => {
+      return typeof value === 'string' ? `'${value}'` : value
+    })
+    .join(', ');
+
+  const query = `INSERT INTO ${table} (${columns}) VALUES (${values})`;
+
+  return runQuery(db, query)
 }
 
 
@@ -68,20 +83,20 @@ export async function distinctWithCount(db:sql.Database, table:string, column:st
     FROM
       ${table}
     GROUP BY
-      commodity_type
+      ${column}
     ORDER BY
-      commodity_type ASC`,
-    (err, rows) => {
-      if (err) {
-        reject(err);
-        return;
-      }
+      ${column} ASC`,
+      (err, rows) => {
+        if (err) {
+          reject(err);
+          return;
+        }
 
-      rows.forEach((row:any) => {
-        result.push({count: row['count'], name: row[column]});
+        rows.forEach((row:any) => {
+          result.push({count: row['count'], name: row[column]});
+        });
+
+        resolve(result);
       });
-
-      resolve(result);
-    });
   });
 }

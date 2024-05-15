@@ -63,7 +63,7 @@ const __dirname = path.dirname(__filename);
  */
 export function csvStream(path:string) {
   const rs = fs.createReadStream(path);
-  const stream = rs.pipe(parse());
+  const stream = rs.pipe(parse({columns: true})); //{cast: true, columns: true}));
 
   return stream;
 }
@@ -103,14 +103,14 @@ function expressConfig(app:Express):void {
 function expressRoutes(app:Express):void {
   // route
   app.get('/Commodity/histogram', expressAuthN, async (req:Request, res:Response) => {
-    const data = await distinctWithCount(db, dbTableName, "commodity");
-    res.render('histogram', data);
+    const data = await distinctWithCount(db, dbTableName, "Commodity");
+    res.render('histogram', {data: data});
   });
 
   // route
   app.get('/CommodityType/histogram', expressAuthN, async (req:Request, res:Response) => {
-    const data = await distinctWithCount(db, dbTableName, "commodity_type");
-    res.render('histogram', data);
+    const data = await distinctWithCount(db, dbTableName, "CommodityType");
+    res.render('histogram', {data: data});
   });
 }
 
@@ -135,13 +135,15 @@ function loadData(path:string, db:sql.Database, table:string):Promise<Number> {
   return new Promise<Number>((resolve, reject) => {
     let count = 0;
 
+    db.serialize(() => {
     csvStream(path)
-      .on('data', (row:Array<string>) => {
+      .on('data', (row:Map<string, any>) => {
         insertRow(db, table, row)
           .then(() => {
             count++;
           })
           .catch((err) => {
+            console.log(err);
             reject(err);
           });
       })
@@ -151,6 +153,7 @@ function loadData(path:string, db:sql.Database, table:string):Promise<Number> {
       .on("end", function () {
         resolve(count);
       });
+    });
   });
 }
 
