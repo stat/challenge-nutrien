@@ -2,11 +2,22 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const path = require('path');
+const sqlite3 = require('sqlite3');
 
 // env
 dotenv.config();
 
+const envDBName = process.env.DB_NAME || 'histogram'
 const envPort = process.env.PORT || 3000;
+
+// db
+const db = new sqlite3.Database(`:${envDBName}:`, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+
+  console.log('Connected to the in-memory SQLite database.');
+});
 
 // authN
 const authN = (req, res, next) => {
