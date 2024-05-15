@@ -33,7 +33,7 @@ dotenv.config();
 //
 // Constants
 //
-//
+
 // env
 const envDataPath = process.env.DATA_PATH || 'data/projection.csv'
 const envPort = process.env.PORT || 3000;
@@ -49,8 +49,6 @@ const db = new sql.Database(envDBName);
 // pwd
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-
 
 //
 // Functions
