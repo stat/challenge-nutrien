@@ -41,7 +41,7 @@ export const db = new sql.Database(dbName);
  * @param {Function} next - the next func in the middleware stack
  * @returns {void}
  */
-function expressAuthN(req:Request, res:Response, next:Function):void {
+function authN(req:Request, res:Response, next:Function):void {
   const isAuthorized = true;
 
   // TODO: validate credentials
@@ -57,7 +57,7 @@ function expressAuthN(req:Request, res:Response, next:Function):void {
  * @param {Express} app - the express application
  * @returns {void}
  */
-function expressConfig(app:Express):void {
+function config(app:Express):void {
   // views
   app.set('view engine', 'ejs');
   app.set('views', './views/pages');
@@ -68,15 +68,15 @@ function expressConfig(app:Express):void {
  * @param {Express} app - the express application
  * @returns {void}
  */
-function expressRoutes(app:Express):void {
+function routes(app:Express):void {
   // route
-  app.get('/Commodity/histogram', expressAuthN, async (req:Request, res:Response) => {
+  app.get('/Commodity/histogram', authN, async (req:Request, res:Response) => {
     const data = await distinctWithCount(db, dbTableName, "Commodity");
     res.render('histogram', {data: data});
   });
 
   // route
-  app.get('/CommodityType/histogram', expressAuthN, async (req:Request, res:Response) => {
+  app.get('/CommodityType/histogram', authN, async (req:Request, res:Response) => {
     const data = await distinctWithCount(db, dbTableName, "CommodityType");
     res.render('histogram', {data: data});
   });
@@ -86,7 +86,7 @@ function expressRoutes(app:Express):void {
  * @param {Express} app - the express application
  * @returns {void}
  */
-function expressServe(app:Express):void {
+function serve(app:Express):void {
   // server
   app.listen(httpPort, () => {
     console.log(`Server is running at http://localhost:${httpPort}`);
@@ -116,17 +116,17 @@ async function initialize() {
   }
 
   // configure express
-  expressConfig(app);
+  config(app);
 
   // attach routes
-  expressRoutes(app);
+  routes(app);
 }
 
 //
-// Serve
+// Start
 //
 
-export async function serve() {
+export async function start() {
   await initialize();
-  expressServe(app);
+  serve(app);
 }

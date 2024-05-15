@@ -1,3 +1,3 @@
-import {serve} from './server.js';
+import {start} from './server.js';
 
-await serve();
+await start();
