@@ -17,5 +17,6 @@ make compose-down
 ### Start
 Spins up the local server
 ```
+make setup
 make start
 ```
