@@ -2,15 +2,12 @@
 // Imports
 //
 
-import {parse} from 'csv-parse';
 import dotenv from 'dotenv';
 import express, {Express, Request, Response} from 'express';
-import fs from 'fs';
-import path from 'path';
-import url from 'url';
 import sql from 'sqlite3';
 
-import {createTable, distinctWithCount, insertRow } from './dao.js'
+import {createTable, distinctWithCount} from './dao.js'
+import {loadData} from './loader.js'
 
 //
 // ENV
@@ -34,25 +31,9 @@ export const app = express();
 // db
 export const db = new sql.Database(dbName);
 
-// pwd
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 //
 // Functions
 //
-
-
-/**
- * @param {string} path - the location of the csv projection data
- * @returns {} the file stream
- */
-export function csvStream(path:string) {
-  const rs = fs.createReadStream(path);
-  const stream = rs.pipe(parse({columns: true})); //{cast: true, columns: true}));
-
-  return stream;
-}
 
 /**
  * @param {Request} req - the express request object
@@ -109,38 +90,6 @@ function expressServe(app:Express):void {
   // server
   app.listen(httpPort, () => {
     console.log(`Server is running at http://localhost:${httpPort}`);
-  });
-}
-
-/**
- * @param {string} path - the location of the csv projection data
- * @param {sql.Database} db - the sqlite3 db
- * @param {string} table - the name of the table to load into
- * @returns {Promise<Number>} the number of rows inserted
- */
-function loadData(path:string, db:sql.Database, table:string):Promise<Number> {
-  return new Promise<Number>((resolve, reject) => {
-    let count = 0;
-
-    db.serialize(() => {
-    csvStream(path)
-      .on('data', (row:Map<string, any>) => {
-        insertRow(db, table, row)
-          .then(() => {
-            count++;
-          })
-          .catch((err) => {
-            console.log(err);
-            reject(err);
-          });
-      })
-      .on("close", function (err:Error) {
-        reject(err);
-      })
-      .on("end", function () {
-        resolve(count);
-      });
-    });
   });
 }
 
