@@ -46,12 +46,3 @@ export function loadData(path:string, db:sql.Database, table:string):Promise<Num
 function delay(ms: number) {
   return new Promise( resolve => setTimeout(resolve, ms) );
 }
-
-// export function coutRows(db:sql.Database, table:string):Promise<Number> {
-//   const query = `select count(*) from ${table}`;
-
-//   // return runQuery(db, query)
-//   return new Promise<Number>((resolve, reject) => {
-
-//   });
-// }
