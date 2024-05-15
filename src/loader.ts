@@ -20,7 +20,7 @@ export function csvStream(path:string) {
  * @param {string} path - the location of the csv projection data
  * @param {sql.Database} db - the sqlite3 db
  * @param {string} table - the name of the table to load into
- * @returns {Promise<Number>} the number of rows inserted
+ * @returns {Promise<Number>} the number of rows being loaded
  */
 export function loadData(path:string, db:sql.Database, table:string):Promise<Number> {
   return new Promise<Number>((resolve, reject) => {
