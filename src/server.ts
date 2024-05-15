@@ -10,6 +10,8 @@ import path from 'path';
 import url from 'url';
 import sql from 'sqlite3';
 
+import {createTable, insertRow } from './dao.js'
+
 //
 // Interfaces
 //
@@ -54,25 +56,6 @@ const __dirname = path.dirname(__filename);
 // Functions
 //
 
-/**
- * @param {string} name - the name of the table to create
- * @returns {Promise<void>}
- */
-function createTable(db:sql.Database, name:string):Promise<void> {
-  return executeQuery(
-    db,
-    `CREATE TABLE IF NOT EXISTS ${name}
-    (
-      attribute VARCHAR(64),
-      commodity VARCHAR(64),
-      commodity_type VARCHAR(64),
-      units VARCHAR(64),
-      year_type VARCHAR(64),
-      year VARCHAR(64),
-      value NUMERICAL
-    )`
-  );
-}
 
 /**
  * @param {string} path - the location of the csv projection data
@@ -83,38 +66,6 @@ export function csvStream(path:string) {
   const stream = rs.pipe(parse());
 
   return stream;
-}
-
-/**
- * @param {string} query - the query to execute
- * @returns {Promise<void>}
- */
-function executeQuery(db:sql.Database, query: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    db.exec(query, function(err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
-
-/**
- * @param {string} query - the query to execute
- * @returns {Promise<void>}
- */
-function runQuery(db:sql.Database, query: string, ...args:any): Promise<void> {
-  return new Promise((resolve, reject) => {
-    db.run(query, args, function(err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
 }
 
 /**
@@ -151,14 +102,14 @@ function expressConfig(app:Express):void {
  */
 function expressRoutes(app:Express):void {
   // route
-  app.get('/:commodity/histogram', expressAuthN, (req:Request, res:Response) => {
+  app.get('/Commodity/histogram', expressAuthN, (req:Request, res:Response) => {
     const data = { }
     res.render('histogram', data);
   });
 
   // route
-  app.get('/:commodityType/histogram', expressAuthN, (req:Request, res:Response) => {
-    const data = { }
+  app.get('/CommodityType/histogram', expressAuthN, (req:Request, res:Response) => {
+    const data = {}
     res.render('histogram', data);
   });
 }
@@ -174,47 +125,25 @@ function expressServe(app:Express):void {
   });
 }
 
-function insertRow(db:sql.Database, table:string, data:Array<any>):Promise<void> {
-  if (!(data[6] instanceof Number)) {
-    data[6] = Number(data[6]);
-  }
-
-  return runQuery(
-    db,
-    `INSERT INTO ${table}
-    (
-      attribute,
-      commodity,
-      commodity_type,
-      units,
-      year_type,
-      year,
-      value
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    ...data
-  )
-}
 
 /**
  * @param {string} path - the location of the csv projection data
  * @param {sql.Database} db - the sqlite3 db
  * @param {string} table - the name of the table to load into
- * @returns {Promise<Array<Projection>>} the contents of the csv file
+ * @returns {Promise<Number>} the number of rows inserted
  */
 function loadData(path:string, db:sql.Database, table:string):Promise<Number> {
   return new Promise<Number>((resolve, reject) => {
     let count = 0;
 
     csvStream(path)
-      // .on('data', (row:Map<string, any>) => {
       .on('data', (row:Array<string>) => {
         insertRow(db, table, row)
           .then(() => {
             count++;
           })
-          .catch((e) => {
-            reject(e);
+          .catch((err) => {
+            reject(err);
           });
       })
       .on("close", function (err:Error) {
