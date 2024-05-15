@@ -13,20 +13,6 @@ import sql from 'sqlite3';
 import {createTable, distinctWithCount, insertRow } from './dao.js'
 
 //
-// Interfaces
-//
-
-interface Projection {
-  attribute: string;
-  commodity: string;
-  commodityType: string;
-  units: string;
-  year: Date;
-  yearType: string;
-  value: number;
-};
-
-//
 // ENV
 // 
 
