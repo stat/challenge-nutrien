@@ -19,7 +19,8 @@ setup: ## no clobber copy .env-local to .env
 
 .PHONY: start
 start: ## start the http server with .env
-	node server.ts
+	npm run start
+	# node server.ts
 
 .PHONY: help
 help:
