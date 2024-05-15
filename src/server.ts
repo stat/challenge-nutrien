@@ -1,9 +1,6 @@
-// reqs
-// const dotenv = require('dotenv');
-// const csv = require('csv-parser');
-// const express = require('express');
-// const fs = require('fs');
-// const sqlite3 = require('sqlite3');
+//
+// Imports
+//
 
 import csv from 'csv-parser';
 import dotenv from 'dotenv';
@@ -13,36 +10,56 @@ import path from 'path';
 import url from 'url';
 import sql from 'sqlite3';
 
-// import {csvColumns} from './loader.js';
+//
+// Interfaces
+//
 
-// const path = require('path');
-// const url = require('url');
+interface Projection {
+  attribute: string;
+  commodity: string;
+  commodityType: string;
+  units: string;
+  year: Date;
+  yearType: string;
+  value: number;
+};
+
+//
+// ENV
+// 
+
+dotenv.config();
+
+//
+// Constants
+//
+//
+// env
+const envDataPath = process.env.DATA_PATH || 'data/projection.csv'
+const envPort = process.env.PORT || 3000;
+const envDBName = process.env.DB_NAME || ':memory:';
+const envDBTableName = process.env.DB_TABLE_NAME || 'data';
+
+// app
+const app = express();
+
+// db
+const db = new sql.Database(envDBName);
+
+// pwd
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log(__dirname);
 
-// env
-dotenv.config();
 
-const envDataPath = process.env.DATA_PATH || 'data/projection.csv'
-const envPort = process.env.PORT || 3000;
+//
+// Functions
+//
 
-// db
-// const db = sqlite.open({
-//   filename: ":memory:",
-//   driver: sqlite3.cached.Database
-// });
-
-// if (db) {
-//   console.log('Connected to the in-memory SQLite database.');
-// } else {
-//   console.log('Could not connect to the in-memory SQLite database.');
-// }
-
-const db = new sql.Database(':memory:');
-const dbTableName = 'data';
-
+/**
+ * @param {string} query - the query to execute
+ * @returns {Promise<void>}
+ */
 function executeQuery(query: string): Promise<void> {
   return new Promise((resolve, reject) => {
     db.exec(query, function(err) {
@@ -55,6 +72,10 @@ function executeQuery(query: string): Promise<void> {
   });
 }
 
+/**
+ * @param {string} name - the name of the table to create
+ * @returns {Promise<void>}
+ */
 function createTable(name:string):Promise<void> {
   return executeQuery(`
     CREATE TABLE IF NOT EXISTS ${name}
@@ -70,30 +91,26 @@ function createTable(name:string):Promise<void> {
   );
 }
 
-await createTable(dbTableName);
+/**
+ * @param {string} path - the location of the csv projection data
+ * @returns {Promise<Array<Projection>>} the contents of the csv file
+ */
+function loadData(path:string):Promise<Array<Projection>> {
+  return new Promise<Array<Projection>>((resolve, reject) => {
+  });
+}
 
-// function initializeDB() {
-//   return new Promise(function(resolve, reject) {
-//     const db = new sqlite3.Database(':memory:', (err) => {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(db);
-//       }
-//     });
-//   });
-// }
+// create the table
+await createTable(envDBTableName);
 
-// const db2 = new sqlite.Database(`:${envDBName}:`, sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE, (err) => {
-//   if (err) {
-//     console.error(err.message);
-//   }
+// 
+await loadData(envDataPath);
 
-//   console.log('Connected to the in-memory SQLite database.');
-// });
 
-// authN
-const authN = (req:Request, res:Response, next:Function) => {
+
+// middleware
+
+function expressAuthN(req:Request, res:Response, next:Function):void {
   const isAuthorized = true;
 
   // TODO: validate credentials
@@ -105,29 +122,24 @@ const authN = (req:Request, res:Response, next:Function) => {
   }
 };
 
-// express
-const app = express();
-
 // views
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views/pages'));
 
 // route
-app.get('/:commodity/histogram', authN, (req:Request, res:Response) => {
+app.get('/:commodity/histogram', expressAuthN, (req:Request, res:Response) => {
   const data = { }
   res.render('histogram', data);
 });
 
 // route
-app.get('/:commodityType/histogram', authN, (req:Request, res:Response) => {
+app.get('/:commodityType/histogram', expressAuthN, (req:Request, res:Response) => {
   const data = { }
   res.render('histogram', data);
 });
 
 // load
 // const rs = fs.createReadStream(envDataPath);
-
-
 
 //
 // db.serialize(() => {
