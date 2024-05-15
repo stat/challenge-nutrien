@@ -1,3 +1,8 @@
+# Requirements
+* Docker
+* Make
+* Git LFS
+
 # Commands
 
 ## Make
