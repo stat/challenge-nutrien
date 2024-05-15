@@ -52,3 +52,36 @@ export function insertRow(db:sql.Database, table:string, data:Array<any>):Promis
   )
 }
 
+
+interface DistinctWithCount {
+  count: string;
+  name: string;
+}
+export async function distinctWithCount(db:sql.Database, table:string, column:string):Promise<Array<DistinctWithCount>> {
+  return new Promise<Array<DistinctWithCount>>((resolve, reject) => {
+    let result:Array<DistinctWithCount> = [];
+
+    db.all(`
+    SELECT DISTINCT
+      ${column},
+      COUNT(*) as count
+    FROM
+      ${table}
+    GROUP BY
+      commodity_type
+    ORDER BY
+      commodity_type ASC`,
+    (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      rows.forEach((row:any) => {
+        result.push({count: row['count'], name: row[column]});
+      });
+
+      resolve(result);
+    });
+  });
+}

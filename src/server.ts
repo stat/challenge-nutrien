@@ -10,7 +10,7 @@ import path from 'path';
 import url from 'url';
 import sql from 'sqlite3';
 
-import {createTable, insertRow } from './dao.js'
+import {createTable, distinctWithCount, insertRow } from './dao.js'
 
 //
 // Interfaces
@@ -93,7 +93,7 @@ function expressAuthN(req:Request, res:Response, next:Function):void {
 function expressConfig(app:Express):void {
   // views
   app.set('view engine', 'ejs');
-  app.set('views', path.join(__dirname, 'views/pages'));
+  app.set('views', path.join(__dirname, '../views/pages'));
 }
 
 /**
@@ -102,14 +102,14 @@ function expressConfig(app:Express):void {
  */
 function expressRoutes(app:Express):void {
   // route
-  app.get('/Commodity/histogram', expressAuthN, (req:Request, res:Response) => {
-    const data = { }
+  app.get('/Commodity/histogram', expressAuthN, async (req:Request, res:Response) => {
+    const data = await distinctWithCount(db, dbTableName, "commodity");
     res.render('histogram', data);
   });
 
   // route
-  app.get('/CommodityType/histogram', expressAuthN, (req:Request, res:Response) => {
-    const data = {}
+  app.get('/CommodityType/histogram', expressAuthN, async (req:Request, res:Response) => {
+    const data = await distinctWithCount(db, dbTableName, "commodity_type");
     res.render('histogram', data);
   });
 }
@@ -124,7 +124,6 @@ function expressServe(app:Express):void {
     console.log(`Server is running at http://localhost:${port}`);
   });
 }
-
 
 /**
  * @param {string} path - the location of the csv projection data
