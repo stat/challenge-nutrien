@@ -2,7 +2,7 @@
 // Imports
 //
 
-import csv from 'csv-parser';
+import {parse} from 'csv-parse';
 import dotenv from 'dotenv';
 import express, {Express, Request, Response} from 'express';
 import fs from 'fs';
@@ -79,7 +79,7 @@ function createTable(name:string):Promise<void> {
  */
 export function csvStream(path:string) {
   const rs = fs.createReadStream(path);
-  const stream = rs.pipe(csv());
+  const stream = rs.pipe(parse());
 
   return stream;
 }
@@ -163,7 +163,19 @@ function expressServe(app:Express):void {
  */
 function loadData(path:string, db:sql.Database, table:string):Promise<Array<Projection>> {
   return new Promise<Array<Projection>>((resolve, reject) => {
-    resolve([]);
+    let items:Array<Projection> = [];
+
+    csvStream(path)
+      // .on('data', (row:Map<string, any>) => {
+      .on('data', (row:Array<string>) => {
+
+      })
+      .on("close", function (err:Error) {
+        reject(err);
+      })
+      .on("end", function () {
+        resolve(items);
+      });
   });
 }
 
@@ -197,7 +209,7 @@ async function initialize() {
 // Serve
 //
 
-async function serve() {
+export async function serve() {
   await initialize();
   expressServe(app);
 }
@@ -205,7 +217,7 @@ async function serve() {
 // Start
 //
 
-await serve();
+// await serve();
 
 // // initialize
 // await initialize();
