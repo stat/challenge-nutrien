@@ -1,0 +1,14 @@
+networks:
+  service:
+    driver: bridge
+
+services:
+
+  api:
+    build: .
+    networks:
+      - service
+    ports:
+      - 80:3000
+    env_file:
+      - .env-release

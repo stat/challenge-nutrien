@@ -10,8 +10,18 @@ ifneq (,$(wildcard ./.env-${ENV}))
 endif
 endif
 
+export
+
 # default
 .DEFAULT_GOAL := help
+
+.PHONY: compose-up
+compose-up: ## start the http server in release mode with docker compose
+	@docker compose up --build --remove-orphans -d
+
+.PHONY: compose-down
+compose-down: ## stop the http server with docker compose
+	@docker compose down
 
 .PHONY: setup
 setup: ## no clobber copy .env-local to .env
