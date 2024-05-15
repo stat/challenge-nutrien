@@ -1,6 +1,12 @@
 // reqs
+const dotenv = require('dotenv');
 const express = require('express');
 const path = require('path');
+
+// env
+dotenv.config();
+
+const envPort = process.env.PORT || 3000;
 
 // authN
 const authN = (req, res, next) => {
@@ -17,7 +23,6 @@ const authN = (req, res, next) => {
 
 // express
 const app = express();
-const appPort = process.env.APP_PORT || 3000;
 
 // views
 app.set('view engine', 'ejs');
@@ -36,6 +41,6 @@ app.get('/:commodityType/histogram', authN, (req, res) => {
 });
 
 // start
-app.listen(appPort, () => {
-  console.log(`[server]: Server is running at http://localhost:${appPort}`);
+app.listen(envPort, () => {
+  console.log(`[server]: Server is running at http://localhost:${envPort}`);
 });
