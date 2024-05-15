@@ -109,7 +109,7 @@ async function initialize() {
   const loaded = await countRows(db, dbTableName);
 
   if (loaded != loading) {
-    throw new Error(`Could not load CSV data, found ${loading} rows, completed: ${loaded} rows`);
+    throw new Error(`Could not load CSV data, found ${loading} rows, loaded: ${loaded} rows`);
   }
 
   console.log(`successfully loaded ${loaded} rows!`);
