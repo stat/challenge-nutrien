@@ -40,7 +40,7 @@ dotenv.config();
 const dataPath = process.env.DATA_PATH || 'data/projection.csv'
 const dbName = process.env.DB_NAME || ':memory:';
 const dbTableName = process.env.DB_TABLE_NAME || 'data';
-const port = process.env.PORT || 3000;
+const httpPort = process.env.HTTP_PORT || 3000;
 
 // app
 export const app = express();
@@ -120,8 +120,8 @@ function expressRoutes(app:Express):void {
  */
 function expressServe(app:Express):void {
   // server
-  app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+  app.listen(httpPort, () => {
+    console.log(`Server is running at http://localhost:${httpPort}`);
   });
 }
 
