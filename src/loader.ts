@@ -3,6 +3,7 @@ import fs from 'fs';
 import sql from 'sqlite3';
 
 import {insertRow} from './dao.js'
+import {runQuery} from './db.js'
 
 /**
  * @param {string} path - the location of the csv projection data
@@ -46,3 +47,12 @@ export function loadData(path:string, db:sql.Database, table:string):Promise<Num
     });
   });
 }
+
+// export function coutRows(db:sql.Database, table:string):Promise<Number> {
+//   const query = `select count(*) from ${table}`;
+
+//   // return runQuery(db, query)
+//   return new Promise<Number>((resolve, reject) => {
+    
+//   });
+// }

@@ -37,24 +37,6 @@ export function insertRow(db:sql.Database, table:string, data:any):Promise<void>
     data['Value'] =  Number(value);
   }
 
-  // console.log(data);
-
-  // return runQuery(
-  //   db,
-  //   `INSERT INTO ${table}
-  //   (
-  //     attribute,
-  //     commodity,
-  //     commodity_type,
-  //     units,
-  //     year_type,
-  //     year,
-  //     value
-  //   )
-  //   VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  //   ...data
-  // )
-  
   const columns = Object.keys(data).join(', ');
   const values = Object.values(data)
     .map((value) => {
@@ -67,11 +49,11 @@ export function insertRow(db:sql.Database, table:string, data:any):Promise<void>
   return runQuery(db, query)
 }
 
-
 interface DistinctWithCount {
   count: string;
   name: string;
 }
+
 export async function distinctWithCount(db:sql.Database, table:string, column:string):Promise<Array<DistinctWithCount>> {
   return new Promise<Array<DistinctWithCount>>((resolve, reject) => {
     let result:Array<DistinctWithCount> = [];

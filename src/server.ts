@@ -99,21 +99,15 @@ function serve(app:Express):void {
 
 async function initialize() {
   // create the table
-  try {
-    console.log("creating in memory table");
     await createTable(db, dbTableName);
-  } catch(e) {
-    console.error(e);
-  }
 
   // load data into the table
-  try {
     console.log("loading data...");
     const count = await loadData(dataPath, db, dbTableName);
     console.log(`loaded ${count} rows`);
-  } catch(e) {
-    console.error(e);
-  }
+
+  // const actual = await countRows(db, dbTableName);
+  // console.log(`loaded count: ${actual}`);
 
   // configure express
   config(app);
