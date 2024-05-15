@@ -35,16 +35,16 @@ dotenv.config();
 //
 
 // env
-const envDataPath = process.env.DATA_PATH || 'data/projection.csv'
-const envPort = process.env.PORT || 3000;
-const envDBName = process.env.DB_NAME || ':memory:';
-const envDBTableName = process.env.DB_TABLE_NAME || 'data';
+const dataPath = process.env.DATA_PATH || 'data/projection.csv'
+const dbName = process.env.DB_NAME || ':memory:';
+const dbTableName = process.env.DB_TABLE_NAME || 'data';
+const port = process.env.PORT || 3000;
 
 // app
 const app = express();
 
 // db
-const db = new sql.Database(envDBName);
+const db = new sql.Database(dbName);
 
 // pwd
 const __filename = url.fileURLToPath(import.meta.url);
@@ -152,8 +152,8 @@ function expressRoutes(app:Express):void {
  */
 function expressServe(app:Express):void {
   // server
-  app.listen(envPort, () => {
-    console.log(`Server is running at http://localhost:${envPort}`);
+  app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
   });
 }
 
@@ -174,14 +174,14 @@ function loadData(path:string, db:sql.Database, table:string):Promise<Array<Proj
 async function initialize() {
   // create the table
   try {
-    await createTable(envDBTableName);
+    await createTable(dbTableName);
   } catch(e) {
     console.error(e);
   }
 
   // load data into the table
   try {
-    await loadData(envDataPath, db, envDBTableName);
+    await loadData(dataPath, db, dbTableName);
   } catch(e) {
     console.error(e);
   }
