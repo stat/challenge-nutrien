@@ -24,28 +24,63 @@ export function csvStream(path:string) {
  */
 export function loadData(path:string, db:sql.Database, table:string):Promise<Number> {
   return new Promise<Number>((resolve, reject) => {
-    let count = 0;
+    let loading = 0;
 
-    db.serialize(() => {
+    // db.serialize(() => {
     csvStream(path)
-      .on('data', (row:Map<string, any>) => {
-        insertRow(db, table, row)
-          .then(() => {
-            count++;
-          })
-          .catch((err) => {
-            console.log(err);
-            reject(err);
-          });
+      .on('data', async (row:Map<string, any>) => {
+        // try {
+        //   await insertRow(db, table, row);
+        //   completions++;
+        // } catch(err) {
+        //   reject(err);
+        // }
+
+        loading++;
+        insertRow(db, table, row);
+
+        // promise
+        //   .then(() => {
+        //     completions++;
+        //   })
+        //   .catch((err) => {
+        //     errors.push(err);
+        //   });
+
+        // promises.push(promise);
+      })
+      .on("error", function(err:Error) {
+        reject(err);
       })
       .on("close", function (err:Error) {
         reject(err);
       })
       .on("end", function () {
-        resolve(count);
+        // if (errors.length) {
+        //   reject(errors);
+        //   return;
+        // }
+
+        // console.log("promises:", promises.length);
+
+        // Promise.all(promises)
+        // .then(() => {
+        //   resolve(completions);
+        // })
+        // .catch((err) => {
+        //   reject(err);
+        // });
+        
+        resolve(loading);
       });
-    });
+
+
   });
+  // });
+}
+
+function delay(ms: number) {
+  return new Promise( resolve => setTimeout(resolve, ms) );
 }
 
 // export function coutRows(db:sql.Database, table:string):Promise<Number> {
@@ -53,6 +88,6 @@ export function loadData(path:string, db:sql.Database, table:string):Promise<Num
 
 //   // return runQuery(db, query)
 //   return new Promise<Number>((resolve, reject) => {
-    
+
 //   });
 // }
