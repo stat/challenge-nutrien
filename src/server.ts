@@ -101,12 +101,18 @@ async function initialize() {
   // create the table
   await createTable(db, dbTableName);
 
-  // load data into the table
+  // parse csv and load into db
   const loading = await loadData(dataPath, db, dbTableName);
-  console.log(`loading ${loading} rows`);
+  console.log(`loading ${loading} rows...`);
 
+  // ensure db data
   const loaded = await countRows(db, dbTableName);
-  console.log(`loaded ${loaded} rows`);
+
+  if (loaded != loading) {
+    throw new Error(`Could not load CSV data, found ${loading} rows, completed: ${loaded} rows`);
+  }
+
+  console.log(`successfully loaded ${loaded} rows!`);
 
   // configure express
   config(app);
