@@ -37,10 +37,10 @@ dotenv.config();
 //
 
 // env
-const dataPath = process.env.DATA_PATH || 'data/projection.csv'
+const dataPath = process.env.DATA_PATH || './data/projection.csv'
 const dbName = process.env.DB_NAME || ':memory:';
 const dbTableName = process.env.DB_TABLE_NAME || 'data';
-const httpPort = process.env.HTTP_PORT || 3000;
+const httpPort = process.env.HTTP_PORT || 3000 ;
 
 // app
 export const app = express();
@@ -93,7 +93,8 @@ function expressAuthN(req:Request, res:Response, next:Function):void {
 function expressConfig(app:Express):void {
   // views
   app.set('view engine', 'ejs');
-  app.set('views', path.join(__dirname, '../views/pages'));
+  app.set('views', './views/pages');
+  // path.join(__dirname, '../views/pages'));
 }
 
 /**
