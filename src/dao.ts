@@ -54,6 +54,23 @@ interface DistinctWithCount {
   name: string;
 }
 
+//
+// Queries
+//
+
+export async function countRows(db:sql.Database, table:string):Promise<Number> {
+  return new Promise<Number>((resolve, reject) => {
+    db.all(
+    `SELECT COUNT(*) from ${table}`,
+    (err, rows) => {
+      const row:any = rows[0];
+      const result = row['COUNT(*)'];
+
+      resolve(result);
+    });
+  });
+}
+
 export async function distinctWithCount(db:sql.Database, table:string, column:string):Promise<Array<DistinctWithCount>> {
   return new Promise<Array<DistinctWithCount>>((resolve, reject) => {
     let result:Array<DistinctWithCount> = [];
@@ -68,17 +85,17 @@ export async function distinctWithCount(db:sql.Database, table:string, column:st
       ${column}
     ORDER BY
       ${column} ASC`,
-      (err, rows) => {
-        if (err) {
-          reject(err);
-          return;
-        }
+    (err, rows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
 
-        rows.forEach((row:any) => {
-          result.push({count: row['count'], name: row[column]});
-        });
-
-        resolve(result);
+      rows.forEach((row:any) => {
+        result.push({count: row['count'], name: row[column]});
       });
+
+      resolve(result);
+    });
   });
 }

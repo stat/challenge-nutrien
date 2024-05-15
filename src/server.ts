@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import express, {Express, Request, Response} from 'express';
 import sql from 'sqlite3';
 
-import {createTable, distinctWithCount} from './dao.js'
+import {createTable, countRows, distinctWithCount} from './dao.js'
 import {loadData} from './loader.js'
 
 //
@@ -99,15 +99,14 @@ function serve(app:Express):void {
 
 async function initialize() {
   // create the table
-    await createTable(db, dbTableName);
+  await createTable(db, dbTableName);
 
   // load data into the table
-    console.log("loading data...");
-    const count = await loadData(dataPath, db, dbTableName);
-    console.log(`loaded ${count} rows`);
+  const loading = await loadData(dataPath, db, dbTableName);
+  console.log(`loading ${loading} rows`);
 
-  // const actual = await countRows(db, dbTableName);
-  // console.log(`loaded count: ${actual}`);
+  const loaded = await countRows(db, dbTableName);
+  console.log(`loaded ${loaded} rows`);
 
   // configure express
   config(app);

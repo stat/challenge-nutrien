@@ -26,28 +26,10 @@ export function loadData(path:string, db:sql.Database, table:string):Promise<Num
   return new Promise<Number>((resolve, reject) => {
     let loading = 0;
 
-    // db.serialize(() => {
     csvStream(path)
       .on('data', async (row:Map<string, any>) => {
-        // try {
-        //   await insertRow(db, table, row);
-        //   completions++;
-        // } catch(err) {
-        //   reject(err);
-        // }
-
         loading++;
         insertRow(db, table, row);
-
-        // promise
-        //   .then(() => {
-        //     completions++;
-        //   })
-        //   .catch((err) => {
-        //     errors.push(err);
-        //   });
-
-        // promises.push(promise);
       })
       .on("error", function(err:Error) {
         reject(err);
@@ -56,27 +38,9 @@ export function loadData(path:string, db:sql.Database, table:string):Promise<Num
         reject(err);
       })
       .on("end", function () {
-        // if (errors.length) {
-        //   reject(errors);
-        //   return;
-        // }
-
-        // console.log("promises:", promises.length);
-
-        // Promise.all(promises)
-        // .then(() => {
-        //   resolve(completions);
-        // })
-        // .catch((err) => {
-        //   reject(err);
-        // });
-        
         resolve(loading);
       });
-
-
   });
-  // });
 }
 
 function delay(ms: number) {
