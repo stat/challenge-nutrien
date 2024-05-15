@@ -13,8 +13,12 @@ endif
 # default
 .DEFAULT_GOAL := help
 
+.PHONY: setup
+setup: ## no clobber copy .env-local to .env
+	@cp -n .env-local .env
+
 .PHONY: start
-start: ## start with .env
+start: ## start the http server with .env
 	node server.ts
 
 .PHONY: help
