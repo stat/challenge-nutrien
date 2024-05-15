@@ -55,22 +55,6 @@ const __dirname = path.dirname(__filename);
 //
 
 /**
- * @param {string} query - the query to execute
- * @returns {Promise<void>}
- */
-function executeQuery(query: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    db.exec(query, function(err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
-
-/**
  * @param {string} name - the name of the table to create
  * @returns {Promise<void>}
  */
@@ -91,23 +75,37 @@ function createTable(name:string):Promise<void> {
 
 /**
  * @param {string} path - the location of the csv projection data
- * @returns {Promise<Array<Projection>>} the contents of the csv file
+ * @returns {} the file stream
  */
-function loadData(path:string):Promise<Array<Projection>> {
-  return new Promise<Array<Projection>>((resolve, reject) => {
+export function csvStream(path:string) {
+  const rs = fs.createReadStream(path);
+  const stream = rs.pipe(csv());
+
+  return stream;
+}
+
+/**
+ * @param {string} query - the query to execute
+ * @returns {Promise<void>}
+ */
+function executeQuery(query: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    db.exec(query, function(err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
   });
 }
 
-// create the table
-await createTable(envDBTableName);
-
-// 
-await loadData(envDataPath);
-
-
-
-// middleware
-
+/**
+ * @param {Request} req - the express request object
+ * @param {Response} res - the express response object
+ * @param {Function} next - the next func in the middleware stack
+ * @returns {void}
+ */
 function expressAuthN(req:Request, res:Response, next:Function):void {
   const isAuthorized = true;
 
@@ -120,21 +118,67 @@ function expressAuthN(req:Request, res:Response, next:Function):void {
   }
 };
 
-// views
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views/pages'));
+/**
+ * @param {Express} app - the express application
+ * @returns {void}
+ */
+function expressConfig(app:Express):void {
+  // views
+  app.set('view engine', 'ejs');
+  app.set('views', path.join(__dirname, 'views/pages'));
+}
 
-// route
-app.get('/:commodity/histogram', expressAuthN, (req:Request, res:Response) => {
-  const data = { }
-  res.render('histogram', data);
-});
+/**
+ * @param {Express} app - the express application
+ * @returns {void}
+ */
+function expressRoutes(app:Express):void {
+  // route
+  app.get('/:commodity/histogram', expressAuthN, (req:Request, res:Response) => {
+    const data = { }
+    res.render('histogram', data);
+  });
 
-// route
-app.get('/:commodityType/histogram', expressAuthN, (req:Request, res:Response) => {
-  const data = { }
-  res.render('histogram', data);
-});
+  // route
+  app.get('/:commodityType/histogram', expressAuthN, (req:Request, res:Response) => {
+    const data = { }
+    res.render('histogram', data);
+  });
+}
+
+/**
+ * @param {Express} app - the express application
+ * @returns {void}
+ */
+function expressServe(app:Express):void {
+  // server
+  app.listen(envPort, () => {
+    console.log(`Server is running at http://localhost:${envPort}`);
+  });
+}
+
+/**
+ * @param {string} path - the location of the csv projection data
+ * @returns {Promise<Array<Projection>>} the contents of the csv file
+ */
+function loadData(path:string, db:sql.Database, table:string):Promise<Array<Projection>> {
+  return new Promise<Array<Projection>>((resolve, reject) => {
+  });
+}
+
+//
+// Initialize
+//
+
+async function initialize() {
+  // create the table
+  await createTable(envDBTableName);
+
+  //  load data into the table
+  await loadData(envDataPath, db, envDBTableName);
+}
+
+
 
 // load
 // const rs = fs.createReadStream(envDataPath);
@@ -164,10 +208,5 @@ app.get('/:commodityType/histogram', expressAuthN, (req:Request, res:Response) =
 //     .on("end", function () {
 //       console.log("Successfully loaded data");
 //     });
-// });
-
-// // http server
-// app.listen(envPort, () => {
-//   console.log(`Server is running at http://localhost:${envPort}`);
 // });
 
