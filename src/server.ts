@@ -163,6 +163,7 @@ function expressServe(app:Express):void {
  */
 function loadData(path:string, db:sql.Database, table:string):Promise<Array<Projection>> {
   return new Promise<Array<Projection>>((resolve, reject) => {
+    resolve([]);
   });
 }
 
@@ -172,13 +173,45 @@ function loadData(path:string, db:sql.Database, table:string):Promise<Array<Proj
 
 async function initialize() {
   // create the table
-  await createTable(envDBTableName);
+  try {
+    await createTable(envDBTableName);
+  } catch(e) {
+    console.error(e);
+  }
 
-  //  load data into the table
-  await loadData(envDataPath, db, envDBTableName);
+  // load data into the table
+  try {
+    await loadData(envDataPath, db, envDBTableName);
+  } catch(e) {
+    console.error(e);
+  }
+
+  // configure express
+  expressConfig(app);
+
+  // attach routes
+  expressRoutes(app);
 }
 
+//
+// Serve
+//
 
+async function serve() {
+  await initialize();
+  expressServe(app);
+}
+//
+// Start
+//
+
+await serve();
+
+// // initialize
+// await initialize();
+
+// // serve
+// expressServe(app);
 
 // load
 // const rs = fs.createReadStream(envDataPath);
