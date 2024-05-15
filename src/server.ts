@@ -41,10 +41,10 @@ const dbTableName = process.env.DB_TABLE_NAME || 'data';
 const port = process.env.PORT || 3000;
 
 // app
-const app = express();
+export const app = express();
 
 // db
-const db = new sql.Database(dbName);
+export const db = new sql.Database(dbName);
 
 // pwd
 const __filename = url.fileURLToPath(import.meta.url);
