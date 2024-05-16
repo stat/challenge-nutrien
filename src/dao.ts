@@ -73,7 +73,7 @@ export async function countRows(db:sql.Database, table:string):Promise<Number> {
 
 export async function distinctWithCount(db:sql.Database, table:string, column:string):Promise<Array<DistinctWithCount>> {
   return new Promise<Array<DistinctWithCount>>((resolve, reject) => {
-    let result:Array<DistinctWithCount> = [];
+    // let result:Array<DistinctWithCount> = [];
 
     db.all(`
     SELECT DISTINCT
@@ -91,9 +91,13 @@ export async function distinctWithCount(db:sql.Database, table:string, column:st
         return;
       }
 
-      rows.forEach((row:any) => {
-        result.push({count: row['count'], name: row[column]});
+      const result = rows.map((item:any) => {
+        return {count: item['count'], name: item[column]};
       });
+
+      // rows.forEach((row:any) => {
+      //   result.push({count: row['count'], name: row[column]});
+      // });
 
       resolve(result);
     });
