@@ -2,6 +2,15 @@ import sql from 'sqlite3';
 
 import {executeQuery, runQuery} from './db.js'
 
+//
+// Interfaces
+//
+
+interface DistinctWithCount {
+  count: string;
+  name: string;
+}
+
 /**
  * @param {string} name - the name of the table to create
  * @returns {Promise<void>}
@@ -49,11 +58,6 @@ export function insertRow(db:sql.Database, table:string, data:any):Promise<void>
   return runQuery(db, query)
 }
 
-interface DistinctWithCount {
-  count: string;
-  name: string;
-}
-
 //
 // Queries
 //
@@ -73,8 +77,6 @@ export async function countRows(db:sql.Database, table:string):Promise<Number> {
 
 export async function distinctWithCount(db:sql.Database, table:string, column:string):Promise<Array<DistinctWithCount>> {
   return new Promise<Array<DistinctWithCount>>((resolve, reject) => {
-    // let result:Array<DistinctWithCount> = [];
-
     db.all(`
     SELECT DISTINCT
       ${column},
@@ -94,10 +96,6 @@ export async function distinctWithCount(db:sql.Database, table:string, column:st
       const result = rows.map((item:any) => {
         return {count: item['count'], name: item[column]};
       });
-
-      // rows.forEach((row:any) => {
-      //   result.push({count: row['count'], name: row[column]});
-      // });
 
       resolve(result);
     });
