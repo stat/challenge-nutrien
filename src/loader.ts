@@ -2,8 +2,8 @@ import {parse} from 'csv-parse';
 import fs from 'fs';
 import sql from 'sqlite3';
 
-import {insertRow} from './dao.js'
-import {runQuery} from './db.js'
+import {insertRow} from './dao'
+import {runQuery} from './db'
 
 /**
  * @param {string} path - the location of the csv projection data

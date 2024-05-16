@@ -6,8 +6,8 @@ import dotenv from 'dotenv';
 import express, {Express, Request, Response} from 'express';
 import sql from 'sqlite3';
 
-import {createTable, countRows, distinctWithCount} from './dao.js'
-import {loadData} from './loader.js'
+import {createTable, countRows, distinctWithCount} from './dao'
+import {loadData} from './loader'
 
 //
 // ENV

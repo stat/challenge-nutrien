@@ -1,6 +1,6 @@
 import sql from 'sqlite3';
 
-import {executeQuery, runQuery} from './db.js'
+import {executeQuery, runQuery} from './db'
 
 //
 // Interfaces
