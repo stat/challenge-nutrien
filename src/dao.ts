@@ -1,6 +1,6 @@
-import sql from 'sqlite3';
+import sql from "sqlite3";
 
-import {executeQuery, runQuery} from './db'
+import { executeQuery, runQuery } from "./db";
 
 //
 // Interfaces
@@ -15,7 +15,7 @@ interface DistinctWithCount {
  * @param {string} name - the name of the table to create
  * @returns {Promise<void>}
  */
-export function createTable(db:sql.Database, name:string):Promise<void> {
+export function createTable(db: sql.Database, name: string): Promise<void> {
   return executeQuery(
     db,
     `CREATE TABLE IF NOT EXISTS ${name}
@@ -37,47 +37,57 @@ export function createTable(db:sql.Database, name:string):Promise<void> {
  * @param {Array<any>} data - the data to load
  * @returns {Promise<Number>} the number of rows inserted
  */
-export function insertRow(db:sql.Database, table:string, data:any):Promise<void> {
+export function insertRow(
+  db: sql.Database,
+  table: string,
+  data: any
+): Promise<void> {
   // TODO: add column count validation
 
-  const value = data['Value'];
+  const value = data["Value"];
 
   if (!(value instanceof Number)) {
-    data['Value'] =  Number(value);
+    data["Value"] = Number(value);
   }
 
-  const columns = Object.keys(data).join(', ');
+  const columns = Object.keys(data).join(", ");
   const values = Object.values(data)
     .map((value) => {
-      return typeof value === 'string' ? `'${value}'` : value
+      return typeof value === "string" ? `'${value}'` : value;
     })
-    .join(', ');
+    .join(", ");
 
   const query = `INSERT INTO ${table} (${columns}) VALUES (${values})`;
 
-  return runQuery(db, query)
+  return runQuery(db, query);
 }
 
 //
 // Queries
 //
 
-export async function countRows(db:sql.Database, table:string):Promise<Number> {
+export async function countRows(
+  db: sql.Database,
+  table: string
+): Promise<Number> {
   return new Promise<Number>((resolve, reject) => {
-    db.all(
-    `SELECT COUNT(*) from ${table}`,
-    (err, rows) => {
-      const row:any = rows[0];
-      const result = row['COUNT(*)'];
+    db.all(`SELECT COUNT(*) from ${table}`, (err, rows) => {
+      const row: any = rows[0];
+      const result = row["COUNT(*)"];
 
       resolve(result);
     });
   });
 }
 
-export async function distinctWithCount(db:sql.Database, table:string, column:string):Promise<Array<DistinctWithCount>> {
+export async function distinctWithCount(
+  db: sql.Database,
+  table: string,
+  column: string
+): Promise<Array<DistinctWithCount>> {
   return new Promise<Array<DistinctWithCount>>((resolve, reject) => {
-    db.all(`
+    db.all(
+      `
     SELECT DISTINCT
       ${column},
       COUNT(*) as count
@@ -87,17 +97,18 @@ export async function distinctWithCount(db:sql.Database, table:string, column:st
       ${column}
     ORDER BY
       ${column} ASC`,
-    (err, rows) => {
-      if (err) {
-        reject(err);
-        return;
+      (err, rows) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        const result = rows.map((item: any) => {
+          return { count: item["count"], name: item[column] };
+        });
+
+        resolve(result);
       }
-
-      const result = rows.map((item:any) => {
-        return {count: item['count'], name: item[column]};
-      });
-
-      resolve(result);
-    });
+    );
   });
 }

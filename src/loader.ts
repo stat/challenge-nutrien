@@ -1,17 +1,17 @@
-import {parse} from 'csv-parse';
-import fs from 'fs';
-import sql from 'sqlite3';
+import { parse } from "csv-parse";
+import fs from "fs";
+import sql from "sqlite3";
 
-import {insertRow} from './dao'
-import {runQuery} from './db'
+import { insertRow } from "./dao";
+import { runQuery } from "./db";
 
 /**
  * @param {string} path - the location of the csv projection data
  * @returns {} the file stream
  */
-export function csvStream(path:string) {
+export function csvStream(path: string) {
   const rs = fs.createReadStream(path);
-  const stream = rs.pipe(parse({columns: true})); //{cast: true, columns: true}));
+  const stream = rs.pipe(parse({ columns: true })); //{cast: true, columns: true}));
 
   return stream;
 }
@@ -22,19 +22,23 @@ export function csvStream(path:string) {
  * @param {string} table - the name of the table to load into
  * @returns {Promise<Number>} the number of rows being loaded
  */
-export function loadData(path:string, db:sql.Database, table:string):Promise<Number> {
+export function loadData(
+  path: string,
+  db: sql.Database,
+  table: string
+): Promise<Number> {
   return new Promise<Number>((resolve, reject) => {
     let loading = 0;
 
     csvStream(path)
-      .on('data', async (row:Map<string, any>) => {
+      .on("data", async (row: Map<string, any>) => {
         loading++;
         insertRow(db, table, row);
       })
-      .on("error", function(err:Error) {
+      .on("error", function (err: Error) {
         reject(err);
       })
-      .on("close", function (err:Error) {
+      .on("close", function (err: Error) {
         reject(err);
       })
       .on("end", function () {
@@ -44,5 +48,5 @@ export function loadData(path:string, db:sql.Database, table:string):Promise<Num
 }
 
 function delay(ms: number) {
-  return new Promise( resolve => setTimeout(resolve, ms) );
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
